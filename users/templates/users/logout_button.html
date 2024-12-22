@@ -1,0 +1,22 @@
+{% block logout_button %}
+<!-- Модальное окно для подтверждения -->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                Выйти из учётной записи?
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Кнопка логаута -->
+<a href="" class="btn btn-warning" data-toggle="modal" data-target="#logoutModal">Выйти</a>
+{% endblock %}
