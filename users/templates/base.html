@@ -6,6 +6,9 @@
     <title>{% block title %}Index{% endblock %}</title>
 </head>
 <body>
+{% block messages %}
+{% include "messages.html" %}
+{% endblock %}
 {% block content %}
 
 {% endblock %}

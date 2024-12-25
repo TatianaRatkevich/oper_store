@@ -1,13 +1,80 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ request.user.username }}
+{{ request.user.username }} - Задачи
 {% endblock %}
 
 {% block content %}
+<div class="container">
+    <h1>Мои задачи</h1>
 
-{% block logout_button %}
-{% include 'users/logout_button.html' %}
-{% endblock %}
+    <!-- Форма фильтрации -->
+    <form method="get" class="mb-4">
+        <div class="form-row">
+            <div class="col-md-4">
+                <h3><label for="start_date">С:</label></h3>
+                <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <h3><label for="end_date">По:</label></h3>
+                <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-md-2 align-self-end">
+                <button type="submit" class="btn btn-primary">Фильтровать</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="container mt-5">
+        <!-- Кнопка создания задачи -->
+        <div class="d-flex justify-content-center mb-4">
+            <a href="{% url 'create_task' %}" class="btn btn-primary btn-lg">Создать новую задачу</a>
+        </div>
+
+        <!-- Список задач -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Дата создания</th>
+                <th>Комментарий</th>
+                <th>Количество изображений</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+            <tr class="{% if task.status == 'pending' %}table-primary{% elif task.status == 'in_progress' %}table-warning{% elif task.status == 'completed' %}table-success{% elif task.status == 'rejected' %}table-danger{% endif %}">
+                <td>{{ task.created_at|date:"d-m-Y H:i" }}</td>
+                <td>{{ task.comment|default:"-" }}</td>
+                <td>{{ task.images.count }}</td>
+                <td>
+                    {% if task.status == 'pending' %}
+                    Ожидается
+                    {% elif task.status == 'in_progress' %}
+                    В процессе
+                    {% elif task.status == 'completed' %}
+                    Завершено
+                    {% elif task.status == 'rejected' %}
+                    Отклонено
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Задач не найдено</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="container mt-5">
+        <!-- Кнопка логаута задачи -->
+        <div class="d-flex justify-content-center mb-4">
+            {% block logout_button %}
+            {% include 'users/logout_button.html' %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView
 
+from task.models import Task
+
 
 class MyLoginView(LoginView):
     def get_success_url(self):
@@ -18,12 +20,30 @@ class MyLogoutView(TemplateView):
 @login_required
 def store_tasks_view(request):
     """
-    View для отображения задач пользователя с ролью store.
+    View для отображения задач пользователя с ролью store с фильтрацией по дате.
     """
     if request.user.role != 'store':
         return redirect('role_redirect')  # Перенаправляем, если роль не store
 
-    return render(request, 'users/store_index.html')
+    # Получение дат фильтрации из запроса
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Фильтруем задачи по дате, если заданы start_date и end_date
+    tasks = Task.objects.all()
+    if start_date and end_date:
+        tasks = tasks.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
+
+    tasks = tasks.order_by('-created_at')  # Сортировка от новых к старым
+
+    return render(request, 'users/store_index.html', {
+        'tasks': tasks,
+        'start_date': start_date,
+        'end_date': end_date
+    })
 
 
 @login_required

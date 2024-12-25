@@ -1,0 +1,41 @@
+{% block messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+        const modalElement = document.getElementById('messageModal');
+
+        // Открыть модальное окно автоматически
+        messageModal.show();
+
+        // Добавить обработчик кнопки "ОК"
+        modalElement.querySelector('.btn-primary').addEventListener('click', function () {
+            messageModal.hide(); // Закрыть модальное окно
+            modalElement.querySelector('.modal-body').innerHTML = ''; // Очистить сообщения
+        });
+
+        // Убедиться, что модальное окно удаляется из DOM после скрытия
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            modalElement.remove(); // Удалить модальное окно из DOM
+        });
+    });
+</script>
+{% if messages %}
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                {% for message in messages %}
+                    <p class="mb-0">{{ message }}</p>
+                {% endfor %}
+            </div>
+            <div class="justify-content-center">
+            <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

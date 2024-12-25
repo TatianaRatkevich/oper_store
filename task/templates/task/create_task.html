@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Создать задачу{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Создать задачу</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="p-4 border rounded bg-light shadow-sm">
+        {% csrf_token %}
+
+        <!-- Поле загрузки изображений -->
+        <div class="form-group">
+            <label for="images"><h3>Загрузка фото</h3></label>
+            <input required name="images" type="file" multiple class="form-control-file" id="images">
+            <small class="form-text text-muted">Вы можете выбрать несколько изображений.</small>
+            <ul id="fileList" class="mt-2"></ul>
+        </div>
+
+        <!-- Скрытое поле для комментария -->
+        <input type="hidden" name="comment" id="commentHiddenInput">
+
+        <!-- Поле комментария -->
+        <div class="form-group mt-3">
+            <label for="comment"><h3>Комментарий</h3></label>
+            <input type="text" class="form-control" id="commentInput" readonly placeholder="Нажмите, чтобы добавить комментарий">
+        </div>
+
+        <!-- Кнопка отправки -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg mt-3">Создать задачу</button>
+        </div>
+    </form>
+</div>
+
+<!-- Модальное окно для ввода комментария -->
+<div class="modal" tabindex="-1" id="commentModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Введите комментарий</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="commentTextArea" rows="5"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelComment">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveComment">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипты для модального окна -->
+<script>
+    document.getElementById('commentInput').addEventListener('click', function() {
+        $('#commentModal').modal('show');
+    });
+
+    document.getElementById('cancelComment').addEventListener('click', function() {
+        $('#commentModal').modal('hide');
+    });
+
+    document.getElementById('saveComment').addEventListener('click', function() {
+        const commentText = document.getElementById('commentTextArea').value;
+        document.getElementById('commentInput').value = commentText;
+        document.getElementById('commentHiddenInput').value = commentText;
+        $('#commentModal').modal('hide');
+    });
+
+    document.getElementById('images').addEventListener('change', function(event) {
+        const input = event.target;
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        for (const file of input.files) {
+            const li = document.createElement('li');
+            li.textContent = file.name;
+            fileList.appendChild(li);
+        }
+    });
+</script>
+{% endblock %}
