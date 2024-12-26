@@ -54,7 +54,25 @@ def operator_tasks_view(request):
     if request.user.role != 'operator':
         return redirect('role_redirect')  # Перенаправляем, если роль не operator
 
-    return render(request, 'users/operator_index.html')
+    # Получение дат фильтрации из запроса
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Фильтруем задачи по дате, если заданы start_date и end_date
+    tasks = Task.objects.all()
+    if start_date and end_date:
+        tasks = tasks.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
+
+    tasks = tasks.order_by('created_at')  # Сортировка от новых к старым
+
+    return render(request, 'users/operator_index.html', {
+        'tasks': tasks,
+        'start_date': start_date,
+        'end_date': end_date
+    })
 
 
 @login_required

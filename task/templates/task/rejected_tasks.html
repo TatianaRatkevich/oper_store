@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Отклоненные задачи
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Отклоненные задачи</h1>
+
+    <!-- Форма фильтрации -->
+    <form method="get" class="mb-4">
+        <div class="form-row">
+            <div class="col-md-4">
+                <label for="start_date">С:</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label for="end_date">По:</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            {% if store_users %}
+            <div class="col-md-4">
+                <label for="username">Пользователь:</label>
+                <select id="username" name="username" class="form-control">
+                    <option value="">Все</option>
+                    {% for user in store_users %}
+                    <option value="{{ user.username }}" {% if user.username == username_filter %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+    <div class="container mb-2">
+      <div class="form-row">
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary">Фильтровать</button>
+    </div>
+        <div class="col-md-2 align-self-end">
+        <a href="{% url 'rejected_tasks' %}" class="btn btn-secondary">Сбросить фильтр</a>
+    </div>
+      </div>
+    </div>
+    <!-- Список задач -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Дата и время</th>
+            <th>Пользователь</th>
+            <th>Комментарий</th>
+            <th>Количество изображений</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.created_at|date:"d-m-Y H:i" }}</td>
+            <td>{{ task.created_by.username }}</td>
+            <td>{{ task.comment|default:"-" }}</td>
+            <td>{{ task.images.count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">Задач не найдено</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="container mt-5">
+        <!-- Кнопка логаута задачи -->
+        <div class="d-flex justify-content-center mb-4">
+            {% block logout_button %}
+            {% include 'users/logout_button.html' %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
