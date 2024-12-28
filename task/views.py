@@ -1,7 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404, redirect, render
+
 
 from .forms import TaskForm
 from .models import Image, Task
@@ -69,3 +72,52 @@ def rejected_tasks_view(request):
         'store_users': store_users,  # Передаём список пользователей store
     })
 
+
+@login_required
+def process_task_view(request, task_id):
+    """
+    View для обработки задачи оператором.
+    """
+    task = get_object_or_404(Task, id=task_id)
+
+    # Ограничение доступа для не операторов
+    if request.user.role != 'operator':
+        return redirect('role_redirect')
+
+    # Проверка: задача уже обрабатывается другим оператором
+    if task.processed_by and task.processed_by != request.user:
+        messages.error(request, f"Задача уже обрабатывается оператором: {task.processed_by.username}")
+        return redirect('operator_index')
+
+    # Разрешить оператору взять задачу в обработку, если она имеет статус "pending"
+    if task.status == 'pending':
+        try:
+            task.assign_to_operator(request.user)
+        except ValidationError as e:
+            return HttpResponseForbidden(f"Ошибка: {e}")
+
+    # Если задача не имеет статус "in_progress" после назначения, перенаправляем обратно
+    if task.status != 'in_progress':
+        return redirect('operator_index')
+
+    error_message = None
+
+    # Управление статусами задачи
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        try:
+            if action == 'complete':
+                task.mark_as_completed()
+            elif action == 'reject':
+                task.mark_as_rejected()
+            elif action == 'return':
+                task.return_to_pending()
+            return redirect('operator_index')
+        except ValidationError as e:
+            error_message = str(e)
+
+    return render(request, 'task/task_process.html', {
+        'task': task,
+        'error_message': error_message
+    })

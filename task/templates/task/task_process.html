@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Обработка задачи{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Задача {{ task.id }}</h1>
+
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <!-- Информация о задаче -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Комментарий</h5>
+            <p class="card-text">{{ task.comment|default:"Комментарий отсутствует" }}</p>
+        </div>
+    </div>
+
+    <!-- Изображения -->
+    <h3>Изображения</h3>
+    <div class="d-flex flex-wrap">
+        {% for image in task.images.all %}
+            <div class="m-2">
+                <img
+                    src="{{ image.image.url }}"
+                    alt="Task Image {{ forloop.counter }}"
+                    class="img-thumbnail image-zoom"
+                    style="max-width: 200px; cursor: zoom-in;"
+                    data-full="{{ image.image.url }}">
+            </div>
+        {% empty %}
+            <p>Нет изображений</p>
+        {% endfor %}
+    </div>
+
+    <!-- Управление статусом -->
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button type="submit" name="action" value="complete" class="btn btn-success">Завершить</button>
+        <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+        <button type="submit" name="action" value="return" class="btn btn-warning">Вернуть в ожидание</button>
+    </form>
+</div>
+
+<script src="{% static 'js/cropper.js' %}"></script>
+
+{% endblock %}

@@ -50,8 +50,11 @@
                         <td>{{ task.images.count }}</td>
                         <td>
                             {% if task.status == 'pending' %}
-                                Ожидается
+                                <a href="{% url 'process_task' task.id %}">Взять в обработку</a>
                             {% elif task.status == 'in_progress' %}
+                                {% if task.processed_by == request.user %}
+                                    <a href="{% url 'process_task' task.id %}">Продолжить</a>
+                                {% endif %}
                                 Обработка
                             {% endif %}
                         </td>
