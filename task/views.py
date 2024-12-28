@@ -112,7 +112,9 @@ def process_task_view(request, task_id):
             elif action == 'reject':
                 task.mark_as_rejected()
             elif action == 'return':
-                task.return_to_pending()
+                task.status = 'pending'
+                task.processed_by = None
+                task.save()
             return redirect('operator_index')
         except ValidationError as e:
             error_message = str(e)
