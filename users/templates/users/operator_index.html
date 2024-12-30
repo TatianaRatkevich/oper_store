@@ -29,62 +29,60 @@
     </form>
 
     <!-- Список задач -->
-<!-- Список задач -->
-<div id="task-container">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Дата и время</th>
-                <th>Задача создана пользователем</th>
-                <th>Комментарий</th>
-                <th>Количество изображений</th>
-                <th>Статус</th>
-                <th>Обрабатывается пользователем</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for task in tasks %}
-                {% if task.status == "pending" or task.status == "in_progress" %}
-                    <tr class="{% if task.status == 'pending' %}table-primary{% elif task.status == 'in_progress' %}table-warning{% endif %}">
-                        <td>{{ task.created_at|date:"d-m-Y H:i" }}</td>
-                        <td>{{ task.created_by.username }}</td>
-                        <td>{{ task.comment|default:"-" }}</td>
-                        <td>{{ task.images.count }}</td>
-                        <td>
-                            {% if task.status == 'pending' %}
-                                <a href="{% url 'process_task' task.id %}">Взять в обработку</a>
-                            {% elif task.status == 'in_progress' %}
-                                {% if task.processed_by == request.user %}
-                                    <a href="{% url 'process_task' task.id %}">Продолжить</a>
-                                {% endif %}
-                                Обработка
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.status == 'in_progress' %}
-                                {{ task.processed_by.username }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endif %}
-            {% empty %}
+    <div id="task-container">
+        <table class="table table-striped" id="task-table">
+            <thead>
                 <tr>
-                    <td colspan="6" class="text-center">Задач не найдено</td>
+                    <th>Дата и время</th>
+                    <th>Задача создана пользователем</th>
+                    <th>Комментарий</th>
+                    <th>Количество изображений</th>
+                    <th>Статус</th>
+                    <th>Обрабатывается пользователем</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-    <div class="container mt-5">
-        <!-- Кнопка логаута задачи -->
-        <div class="d-flex justify-content-center mb-4">
-            {% block logout_button %}
-            {% include 'users/logout_button.html' %}
-            {% endblock %}
-        </div>
+            </thead>
+            <tbody id="task-body">
+                <!-- JavaScript будет динамически добавлять задачи сюда -->
+            </tbody>
+        </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const taskContainer = document.getElementById('task-body');
+
+    // Функция для получения задач через API
+    async function fetchTasks() {
+        const response = await fetch('/api/tasks/');
+        const data = await response.json();
+        taskContainer.innerHTML = '';
+        data.forEach(task => {
+            // Проверка статуса задачи; пропускаем задачи со статусом 'rejected' и 'completed'
+            if (task.status !== 'rejected' && task.status !== 'completed') {
+                const row = document.createElement('tr');
+                row.className = task.status === 'pending' ? 'table-primary' :
+                                (task.status === 'in_progress' ? 'table-warning' : '');
+                row.innerHTML = `
+                    <td>${new Date(task.created_at).toLocaleString()}</td>
+                    <td>${task.created_by || 'Неизвестно'}</td>
+                    <td>${task.comment || '-'}</td>
+                    <td>${task.images_count}</td>
+                    <td>${task.status === 'pending' ? `<a href="/task/tasks/${task.id}/process/">Взять в обработку</a>` :
+                            (task.status === 'in_progress' ? (task.processed_by ? `<a href="/task/tasks/${task.id}/process/">Продолжить</a>` : 'Обработка') :
+                            '')}</td>
+                    <td>${task.status === 'in_progress' ? (task.processed_by || '-') : '-'}</td>
+                `;
+                taskContainer.appendChild(row);
+            }
+        });
+    }
+
+    // Вызов функции для получения задач при загрузке страницы
+    fetchTasks();
+
+    // Обновление списка задач каждые 30 секунд
+    setInterval(fetchTasks, 30000);
+});
+</script>
 {% endblock %}

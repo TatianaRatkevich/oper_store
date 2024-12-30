@@ -4,6 +4,8 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from rest_framework import viewsets
+from .serializers import TaskSerializer
 
 
 from .forms import TaskForm
@@ -123,3 +125,8 @@ def process_task_view(request, task_id):
         'task': task,
         'error_message': error_message
     })
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all().order_by('created_at')
+    serializer_class = TaskSerializer
