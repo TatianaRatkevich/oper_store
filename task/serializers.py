@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Task, Image
+from .models import Task
+
 
 class TaskSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField()

@@ -27,7 +27,18 @@
             </div>
         </div>
     </form>
+    <div class="container mb-4 mt-4">
 
+      <div class="row row-cols-4">
+        <div class="col">
+            <a href="{% url 'rejected_tasks' %}" class="btn btn-secondary">Отклоненные задачи</a>
+        </div>
+        <div class="col">Column</div>
+        <div class="col">Column</div>
+        <div class="col">Column</div>
+      </div>
+
+    </div>
     <!-- Список задач -->
     <div id="task-container">
         <table class="table table-striped" id="task-table">

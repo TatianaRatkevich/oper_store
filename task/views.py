@@ -4,10 +4,12 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import Paginator
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
 from .serializers import TaskSerializer
-
-
 from .forms import TaskForm
 from .models import Image, Task
 
@@ -46,9 +48,10 @@ def rejected_tasks_view(request):
     User = get_user_model()
     tasks = Task.objects.filter(status='rejected').order_by('-created_at')
 
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    username_filter = request.GET.get('username')
+    start_date = request.GET.get('start_date') or None
+    end_date = request.GET.get('end_date') or None
+    username_filter = request.GET.get('username') or ''
+    page_number = request.GET.get('page', 1)
 
     # Фильтрация по дате
     if start_date and end_date:
@@ -66,8 +69,12 @@ def rejected_tasks_view(request):
         tasks = tasks.filter(created_by=request.user)  # Пользователи store видят только свои задачи
         store_users = None  # У store нет фильтра по пользователям
 
+    # Пагинация
+    paginator = Paginator(tasks, 20)
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'task/rejected_tasks.html', {
-        'tasks': tasks,
+        'tasks': page_obj,
         'start_date': start_date,
         'end_date': end_date,
         'username_filter': username_filter,
@@ -130,3 +137,23 @@ def process_task_view(request, task_id):
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all().order_by('created_at')
     serializer_class = TaskSerializer
+
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 20
+
+
+class RejectedTaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.filter(status='rejected').order_by('-created_at')
+    serializer_class = TaskSerializer
+    pagination_class = CustomPageNumberPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(queryset, request)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

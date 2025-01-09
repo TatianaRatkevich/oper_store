@@ -30,7 +30,8 @@ def store_tasks_view(request):
     end_date = request.GET.get('end_date')
 
     # Фильтруем задачи по дате, если заданы start_date и end_date
-    tasks = Task.objects.all()
+    user = request.user
+    tasks = Task.objects.filter(created_by=user)
     if start_date and end_date:
         tasks = tasks.filter(
             created_at__date__gte=start_date,
