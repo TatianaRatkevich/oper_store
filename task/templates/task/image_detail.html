@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Просмотр изображения{% endblock %}
+
+{% block content %}
+<!-- Подключение CSS файла -->
+<link rel="stylesheet" href="{% static 'css/show_images.css' %}">
+
+<!-- Подключение JS файла -->
+<script src="{% static 'js/show_images.js' %}"></script>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Изображение {{ image.id }} задания {{ image.task_id }} </h1>
+
+    <div class="m-2 text-center position-relative">
+        <img
+            src="{{ image.image.url }}"
+            alt="Task Image"
+            class="img-thumbnail image-zoom rotate-img"
+            style="max-width: 100%; cursor: zoom-in;"
+            id="rotatable-image">
+        <button class="rotate-button" onclick="rotateImage()">Повернуть</button>
+    </div>
+</div>
+{% endblock %}

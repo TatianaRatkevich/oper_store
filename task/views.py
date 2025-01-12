@@ -157,3 +157,14 @@ class RejectedTaskViewSet(viewsets.ModelViewSet):
             return paginator.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+def show_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    return render(request, 'task/show_task.html', {'task': task})
+
+
+def image_detail(request, task_id, image_id):
+    task = get_object_or_404(Task, id=task_id)
+    image = get_object_or_404(Image, id=image_id, task=task)
+    return render(request, 'task/image_detail.html', {'task': task, 'image': image})

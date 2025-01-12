@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Просмотр задачи{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Задача {{ task.id }}</h1>
+        <div class="container mb-4 mt-4">
+
+      <div class="row row-cols-5">
+        <div class="col">
+            <a href="{% url 'rejected_tasks' %}" class="btn btn-secondary">Отклоненные задачи</a>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div>
+
+    </div>
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <!-- Информация о задаче -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Комментарий</h5>
+            <p class="card-text">{{ task.comment|default:"Комментарий отсутствует" }}</p>
+        </div>
+    </div>
+
+    <!-- Изображения -->
+    <h3>Изображения</h3>
+    <div class="d-flex flex-wrap">
+        {% for image in task.images.all %}
+            <div class="m-2">
+                <a href="{% url 'image_detail' task.id image.id %}" target="_blank">
+                    <img
+                        src="{{ image.image.url }}"
+                        alt="Task Image {{ forloop.counter }}"
+                        class="img-thumbnail image-zoom"
+                        style="max-width: 200px; cursor: zoom-in;">
+                </a>
+            </div>
+        {% empty %}
+            <p>Нет изображений</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

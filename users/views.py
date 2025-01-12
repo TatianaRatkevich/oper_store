@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 from django.views.generic import TemplateView
+from django.core.paginator import Paginator
 
 from task.models import Task
 
@@ -40,11 +41,17 @@ def store_tasks_view(request):
 
     tasks = tasks.order_by('-created_at')  # Сортировка от новых к старым
 
+    # Реализация пагинации
+    paginator = Paginator(tasks, 3)  # Разбиваем на страницы по 3 задач
+    page_number = request.GET.get('page')
+    page_tasks = paginator.get_page(page_number)
+
     return render(request, 'users/store_index.html', {
-        'tasks': tasks,
+        'tasks': page_tasks,
         'start_date': start_date,
         'end_date': end_date
     })
+
 
 
 @login_required

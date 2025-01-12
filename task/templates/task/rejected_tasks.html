@@ -41,6 +41,9 @@
                 <div class="col-md-2 align-self-end">
                     <a href="{% url 'rejected_tasks' %}" class="btn btn-secondary">Сбросить фильтр</a>
                 </div>
+                <div class="col-md-2 align-self-end">
+                    <a href="{% url 'role_redirect' %}" class="btn btn-secondary">Перейти к задачам</a>
+                </div>
             </div>
         </div>
     </form>
@@ -53,7 +56,7 @@
                     <th>Дата и время</th>
                     <th>Пользователь</th>
                     <th>Комментарий</th>
-                    <th>Количество изображений</th>
+                    <th>Подробнее</th>
                 </tr>
             </thead>
             <tbody id="task-body">
@@ -62,7 +65,7 @@
                     <td>{{ task.created_at|date:"d-m-Y H:i" }}</td>
                     <td>{{ task.created_by.username }}</td>
                     <td>{{ task.comment|default:"-" }}</td>
-                    <td>{{ task.images.count }}</td>
+                    <td><a href="{% url 'show_task' task.id %}" class="btn btn-secondary">Подробнее</a></td>
                 </tr>
                 {% empty %}
                 <tr>

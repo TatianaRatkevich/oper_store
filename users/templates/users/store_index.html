@@ -54,7 +54,7 @@
                     {% elif task.status == 'completed' %}
                     Завершено
                     {% elif task.status == 'rejected' %}
-                    Отклонено
+                    <a href="{% url 'show_task' task.id %}">Отклонено</a>
                     {% endif %}
                 </td>
             </tr>
@@ -66,10 +66,46 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Добавляем пагинацию с использованием Bootstrap -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {% if tasks.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1" aria-label="First">
+          <span aria-hidden="true">&laquo;&laquo;</span> Первая
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ tasks.previous_page_number }}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span> Предыдущая
+        </a>
+      </li>
+    {% endif %}
+
+    <li class="page-item active">
+      <span class="page-link">
+        Страница {{ tasks.number }} из {{ tasks.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if tasks.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ tasks.next_page_number }}" aria-label="Next">
+          Следующая <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ tasks.paginator.num_pages }}" aria-label="Last">
+          Последняя <span aria-hidden="true">&raquo;&raquo;</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+
     <div class="container mt-5">
-        <div class="d-flex justify-content-center mb-4">
-            <a href="{% url 'rejected_tasks' %}" class="btn btn-primary btn-lg">Отменённые задачи</a>
-        </div>
         <!-- Кнопка логаута задачи -->
         <div class="d-flex justify-content-center mb-4">
             {% block logout_button %}
@@ -78,5 +114,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

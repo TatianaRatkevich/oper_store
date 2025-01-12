@@ -1,0 +1,16 @@
+.rotate-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.rotate-img {
+    transition: transform 0.5s ease;
+}
